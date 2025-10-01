@@ -1,0 +1,86 @@
+/* === CSS Reset === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: sans-serif;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+:root {
+  /* Kleuren */
+  --color-bg: #1e1e1e;
+  --color-fg: #f0f0f0;
+  --color-accent: #0078d7;
+  --color-border: #444;
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  --color-shadow-active: rgba(0, 0, 0, 0.6);
+
+  /* Venster */
+  --window-radius: 6px;
+  --window-padding: 10px;
+  --window-header-height: 32px;
+  --window-min-width: 200px;
+  --window-min-height: 120px;
+
+  /* Z-index lagen */
+  --z-window: 10;
+  --z-window-active: 20;
+  --z-taskbar: 100;
+  --z-menu: 200;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+desktop-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+taskbar-bar {
+  height: 40px;
+}

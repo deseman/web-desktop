@@ -1,0 +1,19 @@
+.taskbar {
+  display: flex;
+  background: #222;
+  padding: 4px;
+  gap: 6px;
+}
+
+button {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button.active {
+  background: #0078d4;
+}

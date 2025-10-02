@@ -64,13 +64,17 @@ export class DesktopWindow extends BaseComponent {
     this.offsetX = e.clientX - this.offsetLeft;
     this.offsetY = e.clientY - this.offsetTop;
 
-    // this.dispatchEvent(
-    //   new CustomEvent("window-drag-start", {
-    //     detail: { window: this, offsetX: this.offsetX, offsetY: this.offsetY },
-    //     bubbles: true,
-    //     composed: true,
-    //   })
-    // );
+    const current = this.getAttribute("data-state");
+
+    if (current === "snapped") {
+      this.dispatchEvent(
+        new CustomEvent("window-unsnap", {
+          detail: { window: this, clientX: e.clientX, clientY: e.clientY },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
   }
 
   onDrag(e) {

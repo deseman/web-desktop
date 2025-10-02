@@ -19,7 +19,7 @@ export class WindowManager {
 
   register(win) {
     this.windows.push(win);
-    win.windowManager = this;
+
     if (window.taskbar) {
       window.taskbar.addWindowButton(win);
     }
@@ -141,51 +141,63 @@ export class WindowManager {
     newLeft = Math.max(0, Math.min(newLeft, maxLeft));
     newTop = Math.max(0, Math.min(newTop, maxTop));
 
+    const width = parseInt(win.style.width);
+    const height = parseInt(win.style.height);
+
     win.style.left = `${newLeft}px`;
     win.style.top = `${newTop}px`;
 
     const zones = getSnapZones(parent);
+
     const matched = zones.find(
-      (z) =>
-        clientX >= z.detect.x &&
-        clientX <= z.detect.x + z.detect.w &&
-        clientY >= z.detect.y &&
-        clientY <= z.detect.y + z.detect.h
+      (zone) =>
+        newLeft < zone.detect.x + zone.detect.w &&
+        newLeft + width > zone.detect.x &&
+        newTop < zone.detect.y + zone.detect.h &&
+        newTop + height > zone.detect.y
     );
 
     if (matched) {
-      const s = matched.snap;
-      window.snapOverlay.show(s.x, s.y, s.w, s.h);
+      window.snapOverlay.show(
+        matched.snap.x,
+        matched.snap.y,
+        matched.snap.w,
+        matched.snap.h
+      );
     } else {
       window.snapOverlay.hide();
     }
   }
 
   endDrag({ window: win, clientX, clientY }) {
+    const current = win.getAttribute("data-state");
+
+    const left = parseInt(win.style.left);
+    const top = parseInt(win.style.top);
+    const width = parseInt(win.style.width);
+    const height = parseInt(win.style.height);
+
     const zones = getSnapZones(this.desktopArea);
+
     window.snapOverlay.hide();
 
     const matched = zones.find(
-      (z) =>
-        clientX >= z.x &&
-        clientX <= z.x + z.w &&
-        clientY >= z.y &&
-        clientY <= z.y + z.h
+      (zone) =>
+        left < zone.detect.x + zone.detect.w &&
+        left + width > zone.detect.x &&
+        top < zone.detect.y + zone.detect.h &&
+        top + height > zone.detect.y
     );
 
     if (matched) {
       win.dispatchEvent(
         new CustomEvent("window-state-change", {
-          detail: {
-            state: "snapped",
-            position: matched.position,
-            window: win,
-          },
+          detail: { state: "snapped", position: matched.position, window: win },
           bubbles: true,
           composed: true,
         })
       );
-    } else if (win.getAttribute("data-state") !== "normal") {
+    } else if (current !== "normal") {
       win.dispatchEvent(
         new CustomEvent("window-state-change", {
           detail: { state: "normal", window: win },

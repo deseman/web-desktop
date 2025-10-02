@@ -57,8 +57,6 @@ export class DesktopWindow extends BaseComponent {
   }
 
   startDrag(e) {
-    const state = this.getAttribute("data-state");
-
     this.dragging = true;
     this.hasDragged = false;
     this.startX = e.clientX;
@@ -66,52 +64,17 @@ export class DesktopWindow extends BaseComponent {
     this.offsetX = e.clientX - this.offsetLeft;
     this.offsetY = e.clientY - this.offsetTop;
 
-    if (state === "snapped" && this._prevBounds) {
-      this._pendingUnsnap = {
-        clientX: e.clientX,
-        clientY: e.clientY,
-      };
-    }
-
-    this.dispatchEvent(
-      new CustomEvent("window-drag-start", {
-        detail: { window: this, offsetX: this.offsetX, offsetY: this.offsetY },
-        bubbles: true,
-        composed: true,
-      })
-    );
+    // this.dispatchEvent(
+    //   new CustomEvent("window-drag-start", {
+    //     detail: { window: this, offsetX: this.offsetX, offsetY: this.offsetY },
+    //     bubbles: true,
+    //     composed: true,
+    //   })
+    // );
   }
 
   onDrag(e) {
     if (!this.dragging) return;
-
-    if (this._pendingUnsnap) {
-      const dx = Math.abs(e.clientX - this._pendingUnsnap.clientX);
-      const dy = Math.abs(e.clientY - this._pendingUnsnap.clientY);
-      const threshold = 3;
-
-      if (dx > threshold || dy > threshold) {
-        const bounds = this.getBoundingClientRect();
-        const offsetX = e.clientX - bounds.left;
-        const offsetY = e.clientY - bounds.top;
-
-        this.dispatchEvent(
-          new CustomEvent("window-unsnap", {
-            detail: {
-              window: this,
-              clientX: e.clientX,
-              clientY: e.clientY,
-              offsetX,
-              offsetY,
-            },
-            bubbles: true,
-            composed: true,
-          })
-        );
-
-        this._pendingUnsnap = null; // 🔒 alleen één keer
-      }
-    }
 
     const dx = Math.abs(e.clientX - this.startX);
     const dy = Math.abs(e.clientY - this.startY);

@@ -8,7 +8,16 @@ export class Taskbar extends BaseComponent {
       cssPath: "./components/taskbar/taskbar.css",
       templateId: "taskbar-template",
     });
-    window.taskbar = this; // optioneel: globale toegang
+
+    window.addEventListener("window-state-change", (e) => {
+      const win = e.detail.window || e.target;
+      const state = e.detail.state;
+
+      if (win._taskbarButton) {
+        win._taskbarButton.classList.toggle("active", state === "normal");
+        win._taskbarButton.classList.toggle("hidden", state === "minimized");
+      }
+    });
   }
 
   async addWindowButton(win) {
@@ -19,7 +28,16 @@ export class Taskbar extends BaseComponent {
 
     btn.addEventListener("click", () => {
       const current = win.getAttribute("data-state");
-      win.setState(current === "minimized" ? "normal" : "minimized");
+      win.dispatchEvent(
+        new CustomEvent("window-state-change", {
+          detail: {
+            state: current === "minimized" ? "normal" : "minimized",
+            window: win,
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
     });
 
     win._taskbarButton = btn;

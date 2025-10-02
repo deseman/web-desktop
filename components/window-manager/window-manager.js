@@ -137,57 +137,34 @@ export class WindowManager {
 
     let newLeft = clientX - win.offsetX;
     let newTop = clientY - win.offsetY;
-
     newLeft = Math.max(0, Math.min(newLeft, maxLeft));
     newTop = Math.max(0, Math.min(newTop, maxTop));
-
-    const width = parseInt(win.style.width);
-    const height = parseInt(win.style.height);
-
     win.style.left = `${newLeft}px`;
     win.style.top = `${newTop}px`;
 
-    const zones = getSnapZones(parent);
-
-    const matched = zones.find(
-      (zone) =>
-        newLeft < zone.detect.x + zone.detect.w &&
-        newLeft + width > zone.detect.x &&
-        newTop < zone.detect.y + zone.detect.h &&
-        newTop + height > zone.detect.y
-    );
+    const matched = this.matchDetectionZone(win);
+    const alreadyInZone = win.getAttribute("data-in-zone");
 
     if (matched) {
-      window.snapOverlay.show(
-        matched.snap.x,
-        matched.snap.y,
-        matched.snap.w,
-        matched.snap.h
-      );
+      if (alreadyInZone !== "true") {
+        window.snapOverlay.show(
+          matched.snap.x,
+          matched.snap.y,
+          matched.snap.w,
+          matched.snap.h
+        );
+      }
     } else {
+      win.setAttribute("data-in-zone", "false");
       window.snapOverlay.hide();
     }
   }
 
-  endDrag({ window: win, clientX, clientY }) {
+  endDrag({ window: win }) {
     const current = win.getAttribute("data-state");
-
-    const left = parseInt(win.style.left);
-    const top = parseInt(win.style.top);
-    const width = parseInt(win.style.width);
-    const height = parseInt(win.style.height);
-
-    const zones = getSnapZones(this.desktopArea);
-
     window.snapOverlay.hide();
 
-    const matched = zones.find(
-      (zone) =>
-        left < zone.detect.x + zone.detect.w &&
-        left + width > zone.detect.x &&
-        top < zone.detect.y + zone.detect.h &&
-        top + height > zone.detect.y
-    );
+    const matched = this.matchDetectionZone(win);
 
     if (matched) {
       win.dispatchEvent(
@@ -208,6 +185,23 @@ export class WindowManager {
     }
   }
 
+  matchDetectionZone(win) {
+    const left = parseInt(win.style.left);
+    const top = parseInt(win.style.top);
+    const width = parseInt(win.style.width);
+    const height = parseInt(win.style.height);
+
+    const zones = getSnapZones(this.desktopArea);
+
+    return zones.find(
+      (zone) =>
+        left < zone.detect.x + zone.detect.w &&
+        left + width > zone.detect.x &&
+        top < zone.detect.y + zone.detect.h &&
+        top + height > zone.detect.y
+    );
+  }
+
   setActive(win) {
     this.windows.forEach((w) => w.removeAttribute("data-active"));
     win.setAttribute("data-active", "true");
@@ -224,6 +218,8 @@ export class WindowManager {
   unsnap({ window: win, clientX, clientY }) {
     const bounds = win._prevBounds;
     if (!bounds) return;
+
+    win.setAttribute("data-in-zone", "true");
 
     const titlebar = win.shadowRoot?.querySelector(".titlebar");
     const titlebarHeight = titlebar?.offsetHeight || 32;

@@ -57,14 +57,14 @@ export class DesktopWindow extends BaseComponent {
   }
 
   startDrag(e) {
+    const current = this.getAttribute("data-state");
+    if (current === "maximized") return;
     this.dragging = true;
     this.hasDragged = false;
     this.startX = e.clientX;
     this.startY = e.clientY;
     this.offsetX = e.clientX - this.offsetLeft;
     this.offsetY = e.clientY - this.offsetTop;
-
-    const current = this.getAttribute("data-state");
 
     if (current === "snapped") {
       this.dispatchEvent(
